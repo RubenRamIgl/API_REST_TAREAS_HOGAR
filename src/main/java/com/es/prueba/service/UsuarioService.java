@@ -10,7 +10,7 @@ import com.es.prueba.repository.DireccionRepository;
 import com.es.prueba.repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.mindrot.jbcrypt.BCrypt;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Service
 public class UsuarioService {
@@ -21,11 +21,14 @@ public class UsuarioService {
     @Autowired
     private DireccionRepository direccionRepository;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     public boolean doLogin(UsuarioLoginDTO usuarioDTO) {
         Usuario usuario = usuarioRepository.findById(usuarioDTO.getUsername())
                 .orElseThrow(() -> new PeticionIncorrectaException("El usuario no existe."));
 
-        if (!BCrypt.checkpw(usuarioDTO.getPassword(), usuario.getPassword())) {
+        if (!passwordEncoder.matches(usuarioDTO.getPassword(), usuario.getPassword())) {
             throw new PeticionIncorrectaException("La contraseña es incorrecta.");
         }
 
@@ -67,7 +70,7 @@ public class UsuarioService {
             }
         }
 
-        String hashedPassword = BCrypt.hashpw(usuarioDTO.getPassword(), BCrypt.gensalt());
+        String hashedPassword = passwordEncoder.encode(usuarioDTO.getPassword());
 
         Usuario usuario = new Usuario(
                 usuarioDTO.getNombre(),
@@ -125,7 +128,7 @@ public class UsuarioService {
             throw new PeticionIncorrectaException("El apellido es obligatorio.");
         }
 
-        String hashedPassword = BCrypt.hashpw(usuarioDTO.getPassword(), BCrypt.gensalt());
+        String hashedPassword = passwordEncoder.encode(usuarioDTO.getPassword());
 
         usuario.setNombre(usuarioDTO.getNombre());
         usuario.setApellido(usuarioDTO.getApellido());
@@ -140,14 +143,11 @@ public class UsuarioService {
     }
 
     public boolean borrarUsuario(String username) {
-        // Buscar y borrar dirección si existe
         direccionRepository.findByUsuarioUsername(username).ifPresent(direccionRepository::delete);
 
-        // Comprobar que el usuario existe
         Usuario usuario = usuarioRepository.findById(username)
                 .orElseThrow(() -> new NoEncontradoException("No se encontró el usuario con username: " + username));
 
-        // Borrar usuario
         usuarioRepository.delete(usuario);
 
         return true;
