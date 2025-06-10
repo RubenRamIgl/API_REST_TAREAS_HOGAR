@@ -44,6 +44,12 @@ public class DireccionService {
             throw new PeticionIncorrectaException("La provincia debe ser de Andalucía");
         }
 
+        String cp = direccionDTO.getCp();
+
+        if (cp.compareTo("04000") < 0 || cp.compareTo("41999") > 0) {
+            throw new PeticionIncorrectaException("El código postal debe estar entre 04000 y 41999 (Andalucía).");
+        }
+
         Optional<Direccion> direccionExistente = direccionRepository.findByUsuarioUsername(direccionDTO.getUserName());
         if (direccionExistente.isPresent()) {
             throw new DuplicadoException("Ya existe una dirección registrada para el usuario " + direccionDTO.getUserName() + "'.");

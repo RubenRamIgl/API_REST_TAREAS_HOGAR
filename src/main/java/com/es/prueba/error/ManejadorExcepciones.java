@@ -1,5 +1,6 @@
 package com.es.prueba.error;
 
+import com.es.prueba.error.excepciones.AccesoDenegadoException;
 import com.es.prueba.error.excepciones.DuplicadoException;
 import com.es.prueba.error.excepciones.NoEncontradoException;
 import com.es.prueba.error.excepciones.PeticionIncorrectaException;
@@ -29,6 +30,13 @@ public class ManejadorExcepciones {
     @ResponseStatus(HttpStatus.CONFLICT)
     @ResponseBody
     public String manejarErrorConfrict(HttpServletRequest resquest, Exception e){
+        return e.getMessage();
+    }
+
+    @ExceptionHandler({AccesoDenegadoException.class})
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    @ResponseBody
+    public String manejarAccesoDenegado(HttpServletRequest request, Exception e) {
         return e.getMessage();
     }
 

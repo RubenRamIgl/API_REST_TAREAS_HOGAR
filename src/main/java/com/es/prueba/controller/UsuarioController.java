@@ -2,10 +2,16 @@ package com.es.prueba.controller;
 
 import com.es.prueba.DTO.UsuarioLoginDTO;
 import com.es.prueba.DTO.UsuarioRegisterDTO;
+import com.es.prueba.error.excepciones.PeticionIncorrectaException;
+import com.es.prueba.service.TokenService;
 import com.es.prueba.service.UsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -14,7 +20,13 @@ public class UsuarioController {
     @Autowired
     private UsuarioService usuarioService;
 
-    @PostMapping("/login")
+    @Autowired
+    private TokenService tokenService;
+
+    @Autowired
+    private AuthenticationManager authenticationManager;
+
+    /*@PostMapping("/login")
     public ResponseEntity<String> doLogin(@RequestBody UsuarioLoginDTO usuarioDTO) {
         if (usuarioDTO.getUsername() == null || usuarioDTO.getUsername().isEmpty()) {
             return new ResponseEntity<>("El userName es obligatorio.", HttpStatus.BAD_REQUEST);
@@ -29,7 +41,38 @@ public class UsuarioController {
         System.out.println("El password es: " + usuarioDTO.getPassword());
 
         return new ResponseEntity<>("Hola " + usuarioDTO.getUsername(), HttpStatus.OK);
+    }*/
+
+    @PostMapping("/login")
+    public ResponseEntity<String> login(@RequestBody UsuarioLoginDTO usuarioLoginDTO) {
+        if (usuarioLoginDTO.getUsername() == null || usuarioLoginDTO.getUsername().isEmpty()) {
+            throw new PeticionIncorrectaException("El username es obligatorio.");
+        }
+        if (usuarioLoginDTO.getPassword() == null || usuarioLoginDTO.getPassword().isEmpty()) {
+            throw new PeticionIncorrectaException("El password es obligatorio.");
+        }
+
+        try {
+            // Autenticación con Spring Security
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            usuarioLoginDTO.getUsername(),
+                            usuarioLoginDTO.getPassword()
+                    )
+            );
+
+            // Generación del token JWT
+            String token = tokenService.generateToken(authentication);
+
+            return ResponseEntity.ok(token);
+
+        } catch (BadCredentialsException e) {
+            throw new PeticionIncorrectaException("Credenciales incorrectas");
+        } catch (Exception e) {
+            throw new PeticionIncorrectaException("Error durante el login: " + e.getMessage());
+        }
     }
+
 
     @PostMapping("/register")
     public ResponseEntity<String> register(@RequestBody UsuarioRegisterDTO usuarioDTO) {
@@ -94,8 +137,8 @@ public class UsuarioController {
 
     @DeleteMapping("/usuarioDelete/{username}")
     public ResponseEntity<String> borrarUsuario(@PathVariable String username) {
-        usuarioService.borrarUsuario(username);
-        return new ResponseEntity<>("El usuario " + username + " y su dirección han sido eliminados correctamente.", HttpStatus.OK);
+        usuarioService.borrarUsuario(username); // ← Ahora recibe solo el username
+        return new ResponseEntity<>("El usuario " + username + ", su dirección, y sus tareas han sido eliminados correctamente.", HttpStatus.OK);
     }
 
 
