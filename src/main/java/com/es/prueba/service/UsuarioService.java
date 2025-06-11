@@ -15,8 +15,6 @@ import com.es.prueba.repository.TareaRepository;
 import com.es.prueba.repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
@@ -28,7 +26,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class UsuarioService implements UserDetailsService {
@@ -56,8 +53,8 @@ public class UsuarioService implements UserDetailsService {
 
         return User.builder()
                 .username(usuario.getUsername())
-                .password(usuario.getPassword()) // Asegúrate de que esté hasheado
-                .authorities(List.of(authority)) // Lista con un solo rol
+                .password(usuario.getPassword())
+                .authorities(List.of(authority))
                 .build();
     }
 

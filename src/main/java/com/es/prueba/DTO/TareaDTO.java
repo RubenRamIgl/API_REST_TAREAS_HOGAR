@@ -7,7 +7,6 @@ public class TareaDTO {
     private String descripcion;
     private LocalDateTime fechaFin;
     private Boolean estado;
-    private String userName;
 
     public TareaDTO(String nombre, String descripcion, LocalDateTime fechaFin, Boolean estado) {
         this.nombre = nombre;
@@ -32,10 +31,6 @@ public class TareaDTO {
         return estado;
     }
 
-    public String getUserName() {
-        return userName;
-    }
-
     public void setNombre(String nombre) {
         this.nombre = nombre;
     }
@@ -50,9 +45,5 @@ public class TareaDTO {
 
     public void setEstado(Boolean estado) {
         this.estado = estado;
-    }
-
-    public void setUserName(String userName) {
-        this.userName = userName;
     }
 }

@@ -72,8 +72,10 @@ public class SecurityConfig {
                         // ENDPOINTS DE USUARIO
                         .requestMatchers(HttpMethod.PUT, "/usuarioUpdate").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/usuarioDelete/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/borrarMiCuenta").authenticated()
+                        .requestMatchers(HttpMethod.PUT, "/updateMiPerfil").authenticated()
 
-                        // ENDPOINTS DE TAREAS (versión modificada)
+                        // ENDPOINTS DE TAREAS
                         .requestMatchers(HttpMethod.POST, "/tareaRegister").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET, "/mostrarTareas").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET, "/buscarTareaNombre/{palabra}").hasRole("ADMIN")
@@ -85,6 +87,9 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/direccionRegister").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/direccionUpdate").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/eliminarDireccion/{username}").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/registerMiDireccion").authenticated()
+                        .requestMatchers(HttpMethod.PUT, "/updateMiDireccion").authenticated()
+                        .requestMatchers(HttpMethod.DELETE, "/deleteMiDireccion").authenticated()
 
                         // RESTO DE RUTAS
                         .anyRequest().authenticated()

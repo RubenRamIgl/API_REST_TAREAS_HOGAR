@@ -2,6 +2,7 @@ package com.es.prueba.controller;
 
 import com.es.prueba.DTO.UsuarioLoginDTO;
 import com.es.prueba.DTO.UsuarioRegisterDTO;
+import com.es.prueba.DTO.UsuarioUpdateDTO;
 import com.es.prueba.error.excepciones.PeticionIncorrectaException;
 import com.es.prueba.service.TokenService;
 import com.es.prueba.service.UsuarioService;
@@ -12,6 +13,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -139,6 +141,52 @@ public class UsuarioController {
     public ResponseEntity<String> borrarUsuario(@PathVariable String username) {
         usuarioService.borrarUsuario(username); // ← Ahora recibe solo el username
         return new ResponseEntity<>("El usuario " + username + ", su dirección, y sus tareas han sido eliminados correctamente.", HttpStatus.OK);
+    }
+
+    @DeleteMapping("/borrarMiCuenta")
+    public ResponseEntity<String> borrarMiCuenta() {
+        String usernameActual = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        usuarioService.borrarMiCuenta(usernameActual, usernameActual);
+
+        System.out.println("Usuario eliminó su propia cuenta: " + usernameActual);
+        return new ResponseEntity<>("Tu cuenta (" + usernameActual + ") y todos tus datos asociados han sido eliminados correctamente.", HttpStatus.OK);
+    }
+
+    @PutMapping("/updateMiPerfil")
+    public ResponseEntity<String> actualizarMiPerfil(@RequestBody UsuarioUpdateDTO usuarioDTO) {
+        if (usuarioDTO.getNombre() == null || usuarioDTO.getNombre().isEmpty()) {
+            return new ResponseEntity<>("El nombre es obligatorio.", HttpStatus.BAD_REQUEST);
+        }
+        if (usuarioDTO.getApellido() == null || usuarioDTO.getApellido().isEmpty()) {
+            return new ResponseEntity<>("El apellido es obligatorio.", HttpStatus.BAD_REQUEST);
+        }
+        if (usuarioDTO.getEmail() == null || usuarioDTO.getEmail().isEmpty()) {
+            return new ResponseEntity<>("El email es obligatorio.", HttpStatus.BAD_REQUEST);
+        }
+        if (usuarioDTO.getPassword() == null || usuarioDTO.getPassword().isEmpty()) {
+            return new ResponseEntity<>("El password es obligatorio.", HttpStatus.BAD_REQUEST);
+        }
+        if (usuarioDTO.getRepetirPassword() == null || usuarioDTO.getRepetirPassword().isEmpty()) {
+            return new ResponseEntity<>("Repetir el password es obligatorio.", HttpStatus.BAD_REQUEST);
+        }
+
+        // Obtener username del token
+        String usernameActual = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        if (!usernameActual.equals(usuarioDTO.getUsername())) {
+            return new ResponseEntity<>("Solo puedes actualizar tu propio perfil.", HttpStatus.FORBIDDEN);
+        }
+
+        usuarioService.actualizarMiPerfil(usernameActual, usuarioDTO);
+
+        System.out.println("Usuario actualizó su perfil: " + usuarioDTO.getUsername());
+        System.out.println("Nuevos datos:");
+        System.out.println("Nombre: " + usuarioDTO.getNombre());
+        System.out.println("Apellido: " + usuarioDTO.getApellido());
+        System.out.println("Email: " + usuarioDTO.getEmail());
+
+        return new ResponseEntity<>("Tu perfil ha sido actualizado con éxito", HttpStatus.OK);
     }
 
 

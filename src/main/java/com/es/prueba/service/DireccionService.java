@@ -11,7 +11,6 @@ import com.es.prueba.repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.Optional;
 
 @Service
@@ -116,6 +115,27 @@ public class DireccionService {
 
         direccionRepository.delete(direccionOpt.get());
         return true;
+    }
+
+    public boolean registerMiDireccion(String usernameActual, DireccionRegisterDTO direccionDTO) {
+        if (!usernameActual.equals(direccionDTO.getUserName())) {
+            throw new PeticionIncorrectaException("Solo puedes registrar tu propia dirección");
+        }
+        return registerDireccion(direccionDTO);
+    }
+
+    public DireccionRegisterDTO actualizarMiDireccion(String usernameActual, DireccionRegisterDTO direccionDTO) {
+        if (!usernameActual.equals(direccionDTO.getUserName())) {
+            throw new PeticionIncorrectaException("Solo puedes actualizar tu propia dirección");
+        }
+        return actualizarDireccion(direccionDTO);
+    }
+
+    public boolean eliminarMiDireccion(String usernameActual, String usernameParam) {
+        if (!usernameActual.equals(usernameParam)) {
+            throw new PeticionIncorrectaException("Solo puedes eliminar tu propia dirección");
+        }
+        return eliminarDireccion(usernameParam);
     }
 
 }
