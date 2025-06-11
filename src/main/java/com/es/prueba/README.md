@@ -173,7 +173,7 @@ A continuaci처n se describen las reglas de negocio implementadas en la aplicaci�
 
 ### General
 
-- Para realizar cualquier acci처n es necesario iniciar sesi처n antes
+- Para realizar cualquier acci처n excepto login y registro es necesario iniciar sesi처n antes
 
 ### Usuarios
 
